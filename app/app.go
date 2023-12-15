@@ -31,8 +31,8 @@ func (app appImpl) Run() error {
 func (app appImpl) registerEndpoints() *restful.WebService {
 	ws := new(restful.WebService)
 	ws.Path("/users").
-		Consumes(restful.MIME_XML, restful.MIME_JSON).
-		Produces(restful.MIME_JSON, restful.MIME_XML) // you can specify this per route as well
+		Consumes(restful.MIME_JSON).
+		Produces(restful.MIME_JSON)
 
 	ws.Route(ws.GET("/").To(user.FindAllUsers).
 		Doc("get all users").
@@ -41,7 +41,7 @@ func (app appImpl) registerEndpoints() *restful.WebService {
 
 	ws.Route(ws.GET("/{user-id}").To(endpoints.UserResource.FindUser).
 		Doc("get a user").
-		Param(ws.PathParameter("user-id", "identifier of the user").DataType("integer").DefaultValue("1")).
+		Param(ws.PathParameter("user-id", "identifier of the user").DataType("string").DefaultValue("1")).
 		Writes(models.User{}). // on the response
 		Returns(200, "OK", models.User{}).
 		Returns(404, "Not Found", nil))

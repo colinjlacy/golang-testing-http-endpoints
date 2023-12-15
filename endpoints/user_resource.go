@@ -18,39 +18,37 @@ type userResource interface {
 }
 
 type userResourceImpl struct {
-	// normally one would use DAO (data access object)
-	users map[string]models.User
 }
 
 var (
-	UserResource userResource = &userResourceImpl{map[string]models.User{
+	UserResource userResource           = &userResourceImpl{} // normally one would use DAO (data access object)
+	users        map[string]models.User = map[string]models.User{
 		"1": {"1", "Mario", 35},
 		"2": {"2", "Luigi", 32},
 		"3": {"3", "Toad", 481},
 		"4": {"4", "Peach", 27},
-	}}
+	}
 )
 
 // FindAllUsers GET http://localhost:8080/users
-func (u userResourceImpl) FindAllUsers(request *restful.Request, response *restful.Response) {
+func (u *userResourceImpl) FindAllUsers(request *restful.Request, response *restful.Response) {
 	log.Println("findAllUsers")
 	var list []models.User
-	for _, each := range u.users {
+	for _, each := range users {
 		list = append(list, each)
 	}
-	response.AddHeader("Content-type", restful.MIME_JSON)
-	response.WriteEntity(list)
+	response.WriteAsJson(list)
 }
 
 // FindUser GET http://localhost:8080/users/1
-func (u userResourceImpl) FindUser(request *restful.Request, response *restful.Response) {
+func (u *userResourceImpl) FindUser(request *restful.Request, response *restful.Response) {
 	log.Println("findUser")
 	id := request.PathParameter("user-id")
-	usr := u.users[id]
+	usr := users[id]
 	if len(usr.ID) == 0 {
 		response.WriteErrorString(http.StatusNotFound, "models.User could not be found.")
 	} else {
-		response.WriteEntity(usr)
+		response.WriteAsJson(usr)
 	}
 }
 
@@ -61,10 +59,10 @@ func (u *userResourceImpl) UpsertUser(request *restful.Request, response *restfu
 	usr := models.User{ID: request.PathParameter("user-id")}
 	err := request.ReadEntity(&usr)
 	if err == nil {
-		u.users[usr.ID] = usr
-		response.WriteEntity(usr)
+		users[usr.ID] = usr
+		response.WriteAsJson(usr)
 	} else {
-		response.WriteError(http.StatusInternalServerError, err)
+		response.WriteError(http.StatusBadRequest, err)
 	}
 }
 
@@ -72,13 +70,15 @@ func (u *userResourceImpl) UpsertUser(request *restful.Request, response *restfu
 // <models.User><Id>1</Id><Name>Melissa</Name></models.User>
 func (u *userResourceImpl) CreateUser(request *restful.Request, response *restful.Response) {
 	log.Println("createUser")
-	usr := models.User{ID: fmt.Sprintf("%d", time.Now().Unix())}
+	usr := models.User{}
 	err := request.ReadEntity(&usr)
 	if err == nil {
-		u.users[usr.ID] = usr
-		response.WriteHeaderAndEntity(http.StatusCreated, usr)
+		usr.ID = fmt.Sprintf("%d", time.Now().Unix())
+		users[usr.ID] = usr
+		response.WriteHeaderAndJson(http.StatusCreated, usr, restful.MIME_JSON)
 	} else {
-		response.WriteError(http.StatusInternalServerError, err)
+		response.WriteError(http.StatusBadRequest, err)
+		return
 	}
 }
 
@@ -86,6 +86,6 @@ func (u *userResourceImpl) CreateUser(request *restful.Request, response *restfu
 func (u *userResourceImpl) RemoveUser(request *restful.Request, response *restful.Response) {
 	log.Println("removeUser")
 	id := request.PathParameter("user-id")
-	delete(u.users, id)
+	delete(users, id)
 	response.WriteHeader(http.StatusNoContent)
 }
