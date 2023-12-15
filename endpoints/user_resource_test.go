@@ -21,21 +21,24 @@ func (er errReader) Read([]byte) (int, error) {
 }
 
 func TestUserResourceImpl_FindAllUsers(t *testing.T) {
-	rec := httptest.NewRecorder()
+	// mocking the request
 	httpReq := httptest.NewRequest(http.MethodGet, "/users", nil)
 	req := restful.NewRequest(httpReq)
+	// mocking the response
+	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
+	// calling the function under test
 	UserResource.FindAllUsers(req, res)
 	if res.StatusCode() != http.StatusOK {
 		t.Fatalf("expected status code %d, got %d", http.StatusOK, res.StatusCode())
 	}
-	var users []models.User
-	err := json.Unmarshal(rec.Body.Bytes(), &users)
+	var list []models.User
+	err := json.Unmarshal(rec.Body.Bytes(), &list)
 	if err != nil {
 		t.Fatalf("error parsing response body: %s", err.Error())
 	}
-	if len(users) != 4 {
-		t.Fatalf("expected 4 users, found %d", len(users))
+	if len(list) != len(users) {
+		t.Fatalf("expected %d users, got %d", len(users), len(list))
 	}
 }
 
@@ -93,11 +96,14 @@ func TestUserResourceImpl_FindUser_UserNotFound(t *testing.T) {
 }
 
 func TestUserResourceImpl_CreateUser(t *testing.T) {
-	rec := httptest.NewRecorder()
+	// setting up a mock request with a POST body
 	httpReq, _ := http.NewRequest(http.MethodPost, "/users", strings.NewReader(`{"Name": "Bowser", "Age": 13}`))
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	req := restful.NewRequest(httpReq)
+	// mocking the response
+	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
+	// calling the function under test
 	UserResource.CreateUser(req, res)
 
 	if res.StatusCode() != http.StatusCreated {
@@ -109,11 +115,11 @@ func TestUserResourceImpl_CreateUser(t *testing.T) {
 }
 
 func TestUserResourceImpl_CreateUser_BadRequest(t *testing.T) {
-	rec := httptest.NewRecorder()
 	// passing a struct that throws an error on Read(), error should propagate back to the response
 	httpReq, _ := http.NewRequest(http.MethodPost, "/users", errReader{})
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	req := restful.NewRequest(httpReq)
+	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
 	UserResource.CreateUser(req, res)
 
