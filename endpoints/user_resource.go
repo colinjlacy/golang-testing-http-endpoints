@@ -21,8 +21,9 @@ type userResourceImpl struct {
 }
 
 var (
-	UserResource userResource           = &userResourceImpl{} // normally one would use DAO (data access object)
-	users        map[string]models.User = map[string]models.User{
+	UserResource userResource = &userResourceImpl{}
+	// normally one would use DAO (data access object)
+	users map[string]models.User = map[string]models.User{
 		"1": {"1", "Mario", 35},
 		"2": {"2", "Luigi", 32},
 		"3": {"3", "Toad", 481},

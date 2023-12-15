@@ -9,10 +9,10 @@ $ go run .
 
 That will start a local server on port `:8080`, which you can then interact with via REST requests:
 - GET /users
-- GET /users/{id}
+- GET /users/{user-id}
 - POST /users
-- PUT /users
-- DELETE /users/{id}
+- PUT /users/{user-id}
+- DELETE /users/{user-id}
 
 To run the tests, ensure you have it pulled locally, and run the following command:
 ```shell
