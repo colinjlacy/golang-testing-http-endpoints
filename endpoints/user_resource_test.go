@@ -29,13 +29,13 @@ func TestUserResourceImpl_FindAllUsers(t *testing.T) {
 	if res.StatusCode() != http.StatusOK {
 		t.Fatalf("expected status code %d, got %d", http.StatusOK, res.StatusCode())
 	}
-	var users []models.User
-	err := json.Unmarshal(rec.Body.Bytes(), &users)
+	var list []models.User
+	err := json.Unmarshal(rec.Body.Bytes(), &list)
 	if err != nil {
 		t.Fatalf("error parsing response body: %s", err.Error())
 	}
-	if len(users) != 4 {
-		t.Fatalf("expected 4 users, found %d", len(users))
+	if len(list) != len(users) {
+		t.Fatalf("expected 4 users, found %d", len(list))
 	}
 }
 
