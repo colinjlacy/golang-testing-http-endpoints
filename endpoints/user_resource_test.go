@@ -97,7 +97,7 @@ func TestUserResourceImpl_FindUser_UserNotFound(t *testing.T) {
 
 func TestUserResourceImpl_CreateUser(t *testing.T) {
 	// setting up a mock request with a POST body
-	httpReq, _ := http.NewRequest(http.MethodPost, "/users", strings.NewReader(`{"Name": "Bowser", "Age": 13}`))
+	httpReq := httptest.NewRequest(http.MethodPost, "/users", strings.NewReader(`{"Name": "Bowser", "Age": 13}`))
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	req := restful.NewRequest(httpReq)
 	// mocking the response
@@ -146,7 +146,7 @@ func TestUserResourceImpl_UpsertUser_Update(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error marshaling test model.User to json: %s", err.Error())
 	}
-	httpReq, _ := http.NewRequest(http.MethodPut, "/users/1", bytes.NewBuffer(b))
+	httpReq := httptest.NewRequest(http.MethodPut, "/users/1", bytes.NewBuffer(b))
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
@@ -176,7 +176,7 @@ func TestUserResourceImpl_UpsertUser_Insert(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error marshaling test model.User to json: %s", err.Error())
 	}
-	httpReq, _ := http.NewRequest(http.MethodPut, "/users/6", bytes.NewBuffer(b))
+	httpReq := httptest.NewRequest(http.MethodPut, "/users/6", bytes.NewBuffer(b))
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
@@ -203,7 +203,7 @@ func TestUserResourceImpl_UpsertUser_Error(t *testing.T) {
 	wc := restful.NewContainer()
 	wc.Add(ws)
 
-	httpReq, _ := http.NewRequest(http.MethodPut, "/users/1", errReader{})
+	httpReq := httptest.NewRequest(http.MethodPut, "/users/1", errReader{})
 	httpReq.Header.Set("Content-Type", restful.MIME_JSON)
 	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
@@ -227,7 +227,7 @@ func TestUserResourceImpl_RemoveUser(t *testing.T) {
 	wc := restful.NewContainer()
 	wc.Add(ws)
 
-	httpReq, _ := http.NewRequest(http.MethodDelete, "/users/1", nil)
+	httpReq := httptest.NewRequest(http.MethodDelete, "/users/1", nil)
 	rec := httptest.NewRecorder()
 	res := restful.NewResponse(rec)
 	wc.ServeHTTP(res, httpReq)
